@@ -78,6 +78,7 @@ if interactive_mode:
                         print('Lyrics found:\n' + str(lyrics))
                         if input('Overwrite?  [y/n]') == 'y':
                             write_lyrics(song, lyrics)
+                            written = True
 
                 if not written:
                     if input('Search note?  [y/n]') == 'y':
