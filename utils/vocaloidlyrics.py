@@ -21,8 +21,14 @@ def vocaloidlyrics(driver, artist, title):
     try:
         table = driver.find_element(locate_with(By.TAG_NAME, "table").below({By.ID: "Lyrics"}))
     except:
-        print('Unable to find lyrics on vocaloid lyrics')
-        return False
+        # sometimes it is not a table, just one language
+        try:
+            lyrics = driver.find_element(By.CLASS_NAME, "poem").text
+            return lyrics
+        except:
+            print('Unable to find lyrics on vocaloid lyrics')
+            return False
+    # continue scraping the table
     original = []
     roumaji = []
     translated = []
@@ -48,3 +54,6 @@ def vocaloidlyrics(driver, artist, title):
     # Am choosing to add original lyrics first then translated lyrics after.  You can change to what you want
     lyrics = original + ['\n'] + translated
     return ''.join(str(x) for x in lyrics)
+
+
+
