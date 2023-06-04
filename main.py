@@ -1,6 +1,7 @@
 import eyed3
 import os
 import sys
+import time
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -42,29 +43,24 @@ def write_lyrics(song, lyrics):
     audiofile = eyed3.load(os.path.join(music_dir,song))
     audiofile.tag.lyrics.set(lyrics)
     audiofile.tag.save()
+    print("Lyrics written")
     return
 
 driver = create_driver()
-music_list = [x for x in os.listdir(music_dir) if '.mp3' in x]
+with open('ignorelist.txt','r') as f:
+    ignore_list = f.readlines()
+music_list = [y for y in [x for x in os.listdir(music_dir) if '.mp3' in x] if y not in ignore_list]
 
 # interactive mode.  asks for searching on every website and ask to write
 if interactive_mode:
     for song in music_list:
         written = False
         title, artist, lyrics_exist = get_info(song)
-        # run website scripts
-        print(str(artist) + ' ' + str(title))
-        if input('Search musixmatch?  [y/n]') == 'y':
-            lyrics = musixmatch(driver, artist, title)
-            if lyrics:
-                print('Lyrics found:\n' + str(lyrics))
-                if input('Overwrite?  [y/n]') == 'y':
-                    write_lyrics(song, lyrics)
-                    written = True
-
-        if not written:
-            if input('Search anime?  [y/n]') == 'y':
-                lyrics = animelyrics(driver, artist, title)
+        if overwrite_existing or not lyrics_exist:
+            # run website scripts
+            print('\n' + str(artist) + ' ' + str(title))
+            if input('Search musixmatch?  [y/n]') == 'y':
+                lyrics = musixmatch(driver, artist, title)
                 if lyrics:
                     print('Lyrics found:\n' + str(lyrics))
                     if input('Overwrite?  [y/n]') == 'y':
@@ -72,8 +68,8 @@ if interactive_mode:
                         written = True
 
             if not written:
-                if input('Search vocaloid?  [y/n]') == 'y':
-                    lyrics = vocaloidlyrics(driver, artist, title)
+                if input('Search anime?  [y/n]') == 'y':
+                    lyrics = animelyrics(driver, artist, title)
                     if lyrics:
                         print('Lyrics found:\n' + str(lyrics))
                         if input('Overwrite?  [y/n]') == 'y':
@@ -81,19 +77,28 @@ if interactive_mode:
                             written = True
 
                 if not written:
-                    if input('Search note?  [y/n]') == 'y':
-                        lyrics = note(driver, artist, title)
+                    if input('Search vocaloid?  [y/n]') == 'y':
+                        lyrics = vocaloidlyrics(driver, artist, title)
                         if lyrics:
                             print('Lyrics found:\n' + str(lyrics))
                             if input('Overwrite?  [y/n]') == 'y':
                                 write_lyrics(song, lyrics)
+                                written = True
+
+                    if not written:
+                        if input('Search note?  [y/n]') == 'y':
+                            lyrics = note(driver, artist, title)
+                            if lyrics:
+                                print('Lyrics found:\n' + str(lyrics))
+                                if input('Overwrite?  [y/n]') == 'y':
+                                    write_lyrics(song, lyrics)
 
 else:
     for song in music_list:
         title, artist, lyrics_exist = get_info(song)
         if overwrite_existing or not lyrics_exist:
             # run website scripts
-            print(str(artist) + ' ' + str(title))
+            print('\n' + str(artist) + ' ' + str(title))
             lyrics = musixmatch(driver, artist, title)
             if lyrics:
                 write_lyrics(song, lyrics)
@@ -109,5 +114,6 @@ else:
                         lyrics = note(driver,artist,title)
                         if lyrics:
                             write_lyrics(song,lyrics)
+            time.sleep(5)
 
 driver.close()
