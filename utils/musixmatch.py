@@ -25,5 +25,10 @@ def musixmatch(driver, artist, title):
             print('Unable to find lyrics on musixmatch')
             return False
         else:
-            lyrics = driver.find_element(By.CLASS_NAME, 'mxm-lyrics').text.split('\nReport a problem')[0].split(' languages\n')[1]
+            try:
+                # this only gets the actual lyrics between the "tranlated into..." and "report a problem"
+                lyrics = driver.find_element(By.CLASS_NAME, 'mxm-lyrics').text.split('\nReport a problem')[0].split(' languages\n')[1]
+            except:
+                # if there is only 1 language
+                lyrics = '\n'.join(x for x in driver.find_element(By.CLASS_NAME, 'mxm-lyrics').text.split('\nReport a problem')[0].split('\n')[1:])
             return lyrics
