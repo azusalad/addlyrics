@@ -8,11 +8,11 @@ from selenium.webdriver.support.relative_locator import locate_with
 import time
 
 def musixmatch(driver, artist, title):
-    """Muxixmatch script.  Should use vpn since this site likes to ban you"""
+    """Muxixmatch script.  Searches https://www.musixmatch.com.  Should use vpn since this site likes to ban you"""
     # load search page and click on first result
     driver.get('https://www.musixmatch.com/search/' + str(artist) + '%20' + str(title) + '/tracks')
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.search-results')))
-    time.sleep(1)
+    time.sleep(2)
     if not driver.find_elements(By.CLASS_NAME, "media-card-title"):
         print('Unable to find lyrics on musixmatch')
         return False
@@ -31,4 +31,5 @@ def musixmatch(driver, artist, title):
             except:
                 # if there is only 1 language
                 lyrics = '\n'.join(x for x in driver.find_element(By.CLASS_NAME, 'mxm-lyrics').text.split('\nReport a problem')[0].split('\n')[1:])
+            time.sleep(7)
             return lyrics
