@@ -10,16 +10,23 @@ import time
 
 def note(driver, artist, title):
     """Searches https://note.com"""
-    # load search page and click on first result
-    driver.get("https://note.com/search?q=" + str(artist) + "+" + str(title) + "&context=note&mode=search")
-    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-searchResultNote__nav')))
-    try:
-        driver.find_element(By.CLASS_NAME, "m-timelineItemWrapper__itemWrapper").click()
-    except:
-        print("Note was unable to find lyrics")
+
+    whitelist = ["Nyarons"]
+
+    if artist in whitelist:
+        # load search page and click on first result
+        driver.get("https://note.com/search?q=" + str(artist) + "+" + str(title) + "&context=note&mode=search")
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-searchResultNote__nav')))
+        try:
+            driver.find_element(By.CLASS_NAME, "m-timelineItemWrapper__itemWrapper").click()
+        except:
+            print("Note was unable to find lyrics")
+            return False
+        # get lyrics
+        time.sleep(3)
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-noteContentHeader__title')))
+        lyrics = driver.find_element(By.CLASS_NAME, "note-common-styles__textnote-body").text
+        return lyrics
+    else:
+        print("Artist is not in the whitelist for note")
         return False
-    # get lyrics
-    time.sleep(3)
-    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-noteContentHeader__title')))
-    lyrics = driver.find_element(By.CLASS_NAME, "note-common-styles__textnote-body").text
-    return lyrics
