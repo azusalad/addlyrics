@@ -15,11 +15,13 @@ sys.path.insert(0, 'utils')
 from musixmatch import musixmatch
 from animelyrics import animelyrics
 from vocaloidlyrics import vocaloidlyrics
+from genius import genius
 from note import note
 
 def create_driver():
     driver = webdriver.Firefox(executable_path=driver_path)
-    driver.install_addon(os.path.join(os.getcwd(), ublock_path), temporary=True)
+    if ublock_path:
+        driver.install_addon(os.path.join(os.getcwd(), ublock_path), temporary=True)
     return driver
 
 def get_info(song):
@@ -48,7 +50,7 @@ def write_lyrics(song, lyrics):
 
 driver = create_driver()
 with open('ignorelist.txt','r') as f:
-    ignore_list = f.readlines()
+    ignore_list = [x.strip() for x in f.readlines()]
 music_list = [y for y in [x for x in os.listdir(music_dir) if '.mp3' in x] if y not in ignore_list]
 
 # interactive mode.  asks for searching on every website and ask to write
@@ -86,12 +88,21 @@ if interactive_mode:
                                 written = True
 
                     if not written:
-                        if input('Search note?  [y/n]') == 'y':
-                            lyrics = note(driver, artist, title)
+                        if input('Search genius?  [y/n]') == 'y':
+                            lyrics = genius(driver, artist, title)
                             if lyrics:
                                 print('Lyrics found:\n' + str(lyrics))
                                 if input('Overwrite?  [y/n]') == 'y':
                                     write_lyrics(song, lyrics)
+                                    written = True
+
+                        if not written:
+                            if input('Search note?  [y/n]') == 'y':
+                                lyrics = note(driver, artist, title)
+                                if lyrics:
+                                    print('Lyrics found:\n' + str(lyrics))
+                                    if input('Overwrite?  [y/n]') == 'y':
+                                        write_lyrics(song, lyrics)
 
 else:
     for song in music_list:
@@ -99,21 +110,30 @@ else:
         if overwrite_existing or not lyrics_exist:
             # run website scripts
             print('\n' + str(artist) + ' ' + str(title))
+
             lyrics = musixmatch(driver, artist, title)
             if lyrics:
                 write_lyrics(song, lyrics)
             else:
+
                 lyrics = animelyrics(driver, artist, title)
                 if lyrics:
                     write_lyrics(song, lyrics)
                 else:
+
                     lyrics = vocaloidlyrics(driver, artist, title)
                     if lyrics:
                         write_lyrics(song, lyrics)
                     else:
-                        lyrics = note(driver,artist,title)
+
+                        lyrics = genius(driver, artist, title)
                         if lyrics:
                             write_lyrics(song,lyrics)
+                        else:
+
+                            lyrics = note(driver,artist,title)
+                            if lyrics:
+                                write_lyrics(song,lyrics)
             time.sleep(5)
 
 driver.close()
