@@ -1,5 +1,10 @@
 # addlyrics
-Searches various websites and tags lyrics to local mp3 files.  Currently searches 4 websites: musixmatch, animelyrics, vocaloidlyrics, and note.
+Searches various websites and tags lyrics to local mp3 files.  Currently searches 5 websites:
+* Musixmatch
+* Genius
+* Animelyrics
+* Vocaloidlyrics
+* Note
 
 Work in progress.
 
