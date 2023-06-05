@@ -32,7 +32,7 @@ def animelyrics(driver, artist, title):
 
         results = driver.find_elements(By.CLASS_NAME, "gs-title")
         for x in results:
-            if x.get_attribute('href'):
+            if x.get_attribute('href') and "animelyrics.com" in x.get_attribute('href'):
                 driver.get(x.get_attribute('href').split('.htm')[0] + '.jis')
                 break
         # get lyrics
