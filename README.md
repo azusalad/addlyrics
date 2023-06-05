@@ -12,7 +12,7 @@ Work in progress.
 Python, selenium with the geckodriver, eyed3, tqdm, and romkan (if using animelyrics.com).
 
 ## Usage
-Edit `config.py` and point to your geckodriver and directory of mp3 files.  Enabling interactive mode in the config will make the program ask you if you want to search a website before searching, and will ask you if you want to write the lyrics found.  
+Edit `config.py` and point to your geckodriver and directory of mp3 files.  Enabling interactive mode in the config will make the program ask you if you want to search a website before searching, and will ask you if you want to write the lyrics found.  There is also the order in which websites will be searched.  You should edit it for your use case.
 
 Some website scripts have whitelists for artists.  In the utils folder, edit where whitelist is assigned in the function.  The websites that currently have whitelists are note and vocaloid lyrics.  Artists not in the whitelist will not be searched for that website.  There are also blacklists.  If an artist is in the blacklist, it will not be searched on that website.  
 
