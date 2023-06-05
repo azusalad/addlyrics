@@ -8,9 +8,11 @@ from selenium.webdriver.support.relative_locator import locate_with
 
 import romkan
 import time
+import logging
 
 def animelyrics(driver, artist, title):
     """Searches https://www.animelyrics.com/"""
+    logging.info("Running animelyrics")
 
     blacklist = ["Nyarons", "ツユ"]
 
@@ -25,7 +27,7 @@ def animelyrics(driver, artist, title):
             WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#cse-hosted')))
             time.sleep(2)
             if driver.find_element(By.CSS_SELECTOR, "div.gs-webResult:nth-child(1)").text == "No Results":
-                print('Unable to find lyrics on animelyrics')
+                logging.info('Unable to find lyrics on animelyrics')
                 return False
 
         results = driver.find_elements(By.CLASS_NAME, "gs-title")
@@ -37,4 +39,4 @@ def animelyrics(driver, artist, title):
         lyrics = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'kanji'))).text
         return lyrics
     else:
-        print("Artist is in the blacklist for animelyrics")
+        logging.info("Artist is in the blacklist for animelyrics")

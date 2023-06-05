@@ -5,9 +5,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.relative_locator import locate_with
+import logging
 
 def vocaloidlyrics(driver, artist, title):
     """Search https://vocaloidlyrics.fandom.com"""
+    logging.info("Running vocaloidlyrics")
 
     whitelist = ["DECO*27", "GUMI", "Omoi", "Reol", "稲葉曇"]
 
@@ -18,7 +20,7 @@ def vocaloidlyrics(driver, artist, title):
         try:
             driver.find_element(By.CLASS_NAME, "unified-search__result__title").click()
         except:
-            print('Unable to find lyrics on vocaloid lyrics')
+            logging.info('Unable to find lyrics on vocaloid lyrics')
             return False
         # fetch lyrics.  it is a table.  https://stackoverflow.com/questions/37090653/iterating-through-table-rows-in-selenium-python
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#firstHeading')))
@@ -30,7 +32,7 @@ def vocaloidlyrics(driver, artist, title):
                 lyrics = driver.find_element(By.CLASS_NAME, "poem").text
                 return lyrics
             except:
-                print('Unable to find lyrics on vocaloid lyrics')
+                logging.info('Unable to find lyrics on vocaloid lyrics')
                 return False
         # continue scraping the table
         original = []
@@ -59,6 +61,6 @@ def vocaloidlyrics(driver, artist, title):
         lyrics = original + ['\n'] + translated
         return ''.join(str(x) for x in lyrics)
     else:
-        print("Artist is not in the whitelist for vocaloidlyrics")
+        logging.info("Artist is not in the whitelist for vocaloidlyrics")
         return False
 

@@ -7,9 +7,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.relative_locator import locate_with
 
 import time
+import logging
 
 def note(driver, artist, title):
     """Searches https://note.com"""
+    logging.info("Running note")
 
     whitelist = ["Nyarons"]
 
@@ -20,7 +22,7 @@ def note(driver, artist, title):
             WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-searchResultNote__nav')))
             driver.find_element(By.CLASS_NAME, "m-timelineItemWrapper__itemWrapper").click()
         except:
-            print("Note was unable to find lyrics")
+            logging.info("Note was unable to find lyrics")
             return False
         # get lyrics
         time.sleep(3)
@@ -28,5 +30,5 @@ def note(driver, artist, title):
         lyrics = driver.find_element(By.CLASS_NAME, "note-common-styles__textnote-body").text
         return lyrics
     else:
-        print("Artist is not in the whitelist for note")
+        logging.info("Artist is not in the whitelist for note")
         return False
