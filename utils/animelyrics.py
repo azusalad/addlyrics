@@ -36,7 +36,11 @@ def animelyrics(driver, artist, title):
                 driver.get(x.get_attribute('href').split('.htm')[0] + '.jis')
                 break
         # get lyrics
-        lyrics = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'kanji'))).text
+        try:
+            lyrics = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'kanji'))).text
+        except:
+            logging.info('Unable to find lyrics on animelyrics')
+            return False
         return lyrics
     else:
         logging.info("Artist is in the blacklist for animelyrics")
