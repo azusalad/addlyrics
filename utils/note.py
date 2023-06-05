@@ -16,8 +16,8 @@ def note(driver, artist, title):
     if artist in whitelist:
         # load search page and click on first result
         driver.get("https://note.com/search?q=" + str(artist) + "+" + str(title) + "&context=note&mode=search")
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-searchResultNote__nav')))
         try:
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.o-searchResultNote__nav')))
             driver.find_element(By.CLASS_NAME, "m-timelineItemWrapper__itemWrapper").click()
         except:
             print("Note was unable to find lyrics")

@@ -9,7 +9,7 @@ from selenium.webdriver.support.relative_locator import locate_with
 def vocaloidlyrics(driver, artist, title):
     """Search https://vocaloidlyrics.fandom.com"""
 
-    whitelist = ["DECO*27", "GUMI", "Omoi", "Reol"]
+    whitelist = ["DECO*27", "GUMI", "Omoi", "Reol", "稲葉曇"]
 
     if artist in whitelist:
         # first load search page and click first item

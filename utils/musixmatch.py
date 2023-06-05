@@ -31,5 +31,5 @@ def musixmatch(driver, artist, title):
             except:
                 # if there is only 1 language
                 lyrics = '\n'.join(x for x in driver.find_element(By.CLASS_NAME, 'mxm-lyrics').text.split('\nReport a problem')[0].split('\n')[1:])
-            time.sleep(7)
+            time.sleep(5)
             return lyrics
