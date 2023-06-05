@@ -32,8 +32,15 @@ def animelyrics(driver, artist, title):
 
         results = driver.find_elements(By.CLASS_NAME, "gs-title")
         for x in results:
-            if x.get_attribute('href') and "animelyrics.com" in x.get_attribute('href'):
-                driver.get(x.get_attribute('href').split('.htm')[0] + '.jis')
+            link = x.get_attribute('href')
+            if link and "animelyrics.com" in link:
+                if ".htm" in link:
+                    driver.get(link.split('.htm')[0] + '.jis')
+                elif ".jis" in link:
+                    driver.get(link)
+                else:
+                    logging.info('Unable to find lyrics on animelyrics')
+                    return False
                 break
         # get lyrics
         try:
