@@ -14,7 +14,7 @@ def animelyrics(driver, artist, title):
     """Searches https://www.animelyrics.com/"""
     logging.info("Running animelyrics")
 
-    blacklist = ["Nyarons", "ツユ"]
+    blacklist = ["Nyarons", "ツユ", "K/DA"]
 
     if artist not in blacklist:
         # load search page and click on first item

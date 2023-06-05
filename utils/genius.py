@@ -13,7 +13,7 @@ def genius(driver, artist, title):
     """Searches https://genius.com for lyrics"""
     logging.info("Running genius")
 
-    blacklist = ["カノエラナ"]
+    blacklist = ["カノエラナ", "K/DA"]
 
     if artist not in blacklist:
         # search page
