@@ -2,6 +2,7 @@ import eyed3
 import os
 import sys
 import time
+import logging
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -9,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.relative_locator import locate_with
+from tqdm import tqdm
 
 from config import *
 sys.path.insert(0, 'utils')
@@ -45,8 +47,10 @@ def write_lyrics(song, lyrics):
     audiofile = eyed3.load(os.path.join(music_dir,song))
     audiofile.tag.lyrics.set(lyrics)
     audiofile.tag.save()
-    print("Lyrics written")
+    logging.info("Lyrics written")
     return
+
+logging.basicConfig(filename='myapp.log', level=logging.INFO)
 
 driver = create_driver()
 with open('ignorelist.txt','r') as f:
@@ -105,11 +109,11 @@ if interactive_mode:
                                         write_lyrics(song, lyrics)
 
 else:
-    for song in music_list:
+    for song in tqdm(music_list):
         title, artist, lyrics_exist = get_info(song)
         if overwrite_existing or not lyrics_exist:
             # run website scripts
-            print('\n' + str(artist) + ' ' + str(title))
+            logging.info('\nDoing ' + str(artist) + ' ' + str(title))
 
             lyrics = musixmatch(driver, artist, title)
             if lyrics:
@@ -134,6 +138,8 @@ else:
                             lyrics = note(driver,artist,title)
                             if lyrics:
                                 write_lyrics(song,lyrics)
+                            else:
+                                logging.warning("No lyrics found for " + str(artist) + ' ' + str(title))
             time.sleep(5)
 
 driver.close()
