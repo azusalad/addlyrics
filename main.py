@@ -3,13 +3,7 @@ import os
 import sys
 import time
 import logging
-from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.relative_locator import locate_with
 from tqdm import tqdm
 
 from config import *
@@ -50,7 +44,37 @@ def write_lyrics(song, lyrics):
     logging.info("Lyrics written")
     return
 
+def interactive(driver, artist, title, func):
+    """Fetches lyrics for interactive mode.  Will call function to write lyrics if lyrics found.  Returns true if lyrics written and false if not"""
+    func_name = str(func).split(' ')[1]
+    logging.info("Doing" + str(artist) + ' ' + str(title) + " with " + str(func_name))
+    if input('Search ' + str(func_name) + '? [y/n]').lower() == 'y':
+        logging.debug("Search requested with " + str(func_name))
+        lyrics = func(driver, artist, title)
+        if lyrics:
+            print('Lyrics found:\n' + str(lyrics))
+            logging.info("Lyrics found")
+            if input('Write lyrics?  [y/n]').lower() == 'y':
+                logging.info("Writing lyrics")
+                write_lyrics(song, lyrics)
+                return True
+        else:
+            print("Lyrics not found or artist in blacklist/not in whitelist")
+            return False
+    logging.debug("Search skipped")
+    return False
+
+def normal_search(driver, artist, title, func):
+    lyrics = func(driver, artist, title)
+    if lyrics:
+        write_lyrics(song, lyrics)
+        return True
+    else:
+        return False
+
+
 logging.basicConfig(filename='myapp.log', level=logging.INFO)
+logging.info("Starting program at " + str(time.time()))
 
 driver = create_driver()
 with open('ignorelist.txt','r') as f:
@@ -59,87 +83,34 @@ music_list = [y for y in [x for x in os.listdir(music_dir) if '.mp3' in x] if y 
 
 # interactive mode.  asks for searching on every website and ask to write
 if interactive_mode:
+    logging.info("Starting interactive mode")
     for song in music_list:
         written = False
+        index = 0
         title, artist, lyrics_exist = get_info(song)
         if overwrite_existing or not lyrics_exist:
-            # run website scripts
             print('\n' + str(artist) + ' ' + str(title))
-            if input('Search musixmatch?  [y/n]') == 'y':
-                lyrics = musixmatch(driver, artist, title)
-                if lyrics:
-                    print('Lyrics found:\n' + str(lyrics))
-                    if input('Overwrite?  [y/n]') == 'y':
-                        write_lyrics(song, lyrics)
-                        written = True
-
+            while not written and index + 1 <= len(search_order):
+                written = interactive(driver, artist, title, search_order[index])
+                index += 1
             if not written:
-                if input('Search anime?  [y/n]') == 'y':
-                    lyrics = animelyrics(driver, artist, title)
-                    if lyrics:
-                        print('Lyrics found:\n' + str(lyrics))
-                        if input('Overwrite?  [y/n]') == 'y':
-                            write_lyrics(song, lyrics)
-                            written = True
-
-                if not written:
-                    if input('Search vocaloid?  [y/n]') == 'y':
-                        lyrics = vocaloidlyrics(driver, artist, title)
-                        if lyrics:
-                            print('Lyrics found:\n' + str(lyrics))
-                            if input('Overwrite?  [y/n]') == 'y':
-                                write_lyrics(song, lyrics)
-                                written = True
-
-                    if not written:
-                        if input('Search genius?  [y/n]') == 'y':
-                            lyrics = genius(driver, artist, title)
-                            if lyrics:
-                                print('Lyrics found:\n' + str(lyrics))
-                                if input('Overwrite?  [y/n]') == 'y':
-                                    write_lyrics(song, lyrics)
-                                    written = True
-
-                        if not written:
-                            if input('Search note?  [y/n]') == 'y':
-                                lyrics = note(driver, artist, title)
-                                if lyrics:
-                                    print('Lyrics found:\n' + str(lyrics))
-                                    if input('Overwrite?  [y/n]') == 'y':
-                                        write_lyrics(song, lyrics)
-
+                logging.warning("No lyrics found for " + str(artist) + ' ' + str(title))
+                with open("notfound.txt","a") as f:
+                    f.write("\n" + str(song))
 else:
     for song in tqdm(music_list):
+        written = False
+        index = 0
         title, artist, lyrics_exist = get_info(song)
         if overwrite_existing or not lyrics_exist:
             # run website scripts
             logging.info('\nDoing ' + str(artist) + ' ' + str(title))
-
-            lyrics = musixmatch(driver, artist, title)
-            if lyrics:
-                write_lyrics(song, lyrics)
-            else:
-
-                lyrics = animelyrics(driver, artist, title)
-                if lyrics:
-                    write_lyrics(song, lyrics)
-                else:
-
-                    lyrics = vocaloidlyrics(driver, artist, title)
-                    if lyrics:
-                        write_lyrics(song, lyrics)
-                    else:
-
-                        lyrics = genius(driver, artist, title)
-                        if lyrics:
-                            write_lyrics(song,lyrics)
-                        else:
-
-                            lyrics = note(driver,artist,title)
-                            if lyrics:
-                                write_lyrics(song,lyrics)
-                            else:
-                                logging.warning("No lyrics found for " + str(artist) + ' ' + str(title))
+            while not written and index + 1 <= len(search_order):
+                written = normal_search(driver, artist, title, search_order[index])
+                index += 1
+            if not written:
+                logging.warning("No lyrics found for " + str(artist) + ' ' + str(title))
+                with open("notfound.txt","a") as f:
+                    f.write("\n" + str(song))
             time.sleep(5)
-
 driver.close()
