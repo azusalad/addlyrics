@@ -4,6 +4,7 @@ import sys
 import time
 import logging
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from tqdm import tqdm
 
 from config import *
@@ -15,7 +16,8 @@ from genius import genius
 from note import note
 
 def create_driver():
-    driver = webdriver.Firefox(executable_path=driver_path)
+    service = Service(executable_path=driver_path)
+    driver = webdriver.Firefox(service=service)
     if ublock_path:
         driver.install_addon(os.path.join(os.getcwd(), ublock_path), temporary=True)
     return driver
